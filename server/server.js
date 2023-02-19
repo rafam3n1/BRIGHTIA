@@ -1,9 +1,9 @@
-import express from 'express'
-import * as dotenv from 'dotenv'
-import cors from 'cors'
-import { Configuration, OpenAIApi } from 'openai'
+import express from 'express';
+import * as dotenv from 'dotenv';
+import cors from 'cors';
+import { Configuration, OpenAIApi } from 'openai';
 
-dotenv.config()
+dotenv.config();
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -11,14 +11,13 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const app = express()
-app.use(cors())
-app.use(express.json())
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-const promptMap = {
-  'O que é Bright?': 'Bright Cloud games é um serviço streaming de jogos com servidores no Brasil',
-  // adicione mais perguntas e respostas aqui
-}
+const promptMap = new Map([
+  ["o que é bright?", "Bright Cloud games é um serviço streaming de jogos com servidores no Brasil."],
+]);
 
 app.get('/', async (req, res) => {
   res.status(200).send({
@@ -30,29 +29,29 @@ app.post('/', async (req, res) => {
   try {
     const prompt = req.body.prompt;
 
-    if (promptMap[prompt]) {
+    if (promptMap.has(prompt)) {
       res.status(200).send({
-        bot: promptMap[prompt]
+        bot: promptMap.get(prompt),
       });
     } else {
       const response = await openai.createCompletion({
-        model: "text-davinci-003",
+        model: "text-davinci-002",
         prompt: `${prompt}`,
         temperature: 0.7,
-        max_tokens: 3000,
-        top_p: 1,
-        frequency_penalty: 0.5,
-        presence_penalty: 0,
+        maxTokens: 60,
+        n: 1,
+        stop: "\n",
       });
 
       res.status(200).send({
-        bot: response.data.choices[0].text
+        bot: response.data.choices[0].text.trim(),
       });
     }
+
   } catch (error) {
     console.error(error)
     res.status(500).send(error || 'Something went wrong');
   }
-})
+});
 
-app.listen(5000, () => console.log('AI server started on http://localhost:5000'))
+app.listen(5000, () => console.log('AI server started on http://localhost:5000'));
