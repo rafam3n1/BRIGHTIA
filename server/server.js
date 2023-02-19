@@ -25,7 +25,7 @@ app.post('/', async (req, res) => {
   try {
     const prompt = req.body.prompt;
 
-    if (prompt.toLowerCase() === "o que é bright?") {
+    if (prompt.toLowerCase() === o que é bright?) {
       res.send("Bright Cloud games é um serviço de jogos em nuvem com servidores no brasil");
     } else {
       const response = await openai.createCompletion({
@@ -37,11 +37,11 @@ app.post('/', async (req, res) => {
         frequency_penalty: 0.5,
         presence_penalty: 0,
       });
-    }
+    
     res.status(200).send({
       bot: response.data.choices[0].text
     });
-
+  }
   } catch (error) {
     console.error(error)
     res.status(500).send(error || 'Something went wrong');
